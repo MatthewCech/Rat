@@ -1,0 +1,27 @@
+{
+  "name": "rat_server",
+  "version": "1.0.0",
+  "description": "server for Rat unity game",
+  "main": "rat_server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ReverieWisp/Rat.git"
+  },
+  "keywords": [
+    "rat"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ReverieWisp/Rat/issues"
+  },
+  "homepage": "https://github.com/ReverieWisp/Rat#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "request": "^2.88.2"
+  }
+}
