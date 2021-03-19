@@ -37,11 +37,67 @@ public static class LeaderboardUtil
         return score;
     }
 
-    public const string endpoint = "https://rw0.pw/api/v1/rat";
+    public const string endpoint = "https://rw0.pw/rat/v1";
+
+    // You found it, congrats! I'm not going to bother with much past this, I've
+    // made it a barrier to entry proportionally harder than just plaintext in line
+    // with the amount of time and security I feel this project needs. 
+    public const string SuperSneakyValue = "Rat";
+
+    private static char GarbleChar(char toGarble, int index, bool reversed = false, bool log = false)
+    {
+        int reverse = reversed ? -1 : 1;
+        char sneakyValue = SuperSneakyValue[index % SuperSneakyValue.Length];
+        int val = (toGarble + reverse * sneakyValue);
+        if(log) Debug.Log((int)val);
+        int diff = 'z' - '0';
+        while (val < '0') val += diff;
+        while (val > 'z') val -= diff;
+
+
+        return (char)val;
+    }
+
+    public static string Garble(ScoreEntry entry)
+    {
+        string splitChar = ":";
+        string toGarble = $"{entry.tag}{splitChar}{entry.fg}{splitChar}{entry.bg}{splitChar}{entry.score}".ToLowerInvariant();
+        string assembled = "";
+
+        for(int i = 0; i < toGarble.Length; ++i)
+        {
+            char preChar = toGarble[i];
+            if (preChar == '.') preChar = ';';
+            char postChar = GarbleChar(preChar, i, reversed: false);
+            if (postChar == '=') postChar = ' ';
+            assembled += postChar;
+        }
+
+        Debug.Log(assembled);
+        assembled = UnityWebRequest.EscapeURL(assembled);
+        return assembled;
+    }
+
+    public static string UnGarble(string toUngarble)
+    {
+        toUngarble = UnityWebRequest.UnEscapeURL(toUngarble);
+        string assembled = "";
+
+        for (int i = 0; i < toUngarble.Length; ++i)
+        {
+            char item = toUngarble[i];
+            if (item == ' ') item = '=';
+            char postChar = GarbleChar(item, i, reversed: true, log: true);
+            if (postChar == ';') postChar = '.';
+            assembled += postChar;
+        }
+
+        return assembled;
+    }
 
     public static IEnumerator SendScore(ScoreEntry entry, System.Action<string> onComplete, System.Action<string> onError)
     {
-        using (UnityWebRequest webRequest = UnityWebRequest.Get($"{endpoint}/add?tag={entry.tag}&fg={entry.fg}&bg={entry.bg}&score={entry.score}"))
+        using (UnityWebRequest webRequest = UnityWebRequest.Get($"{endpoint}/add?entry={Garble(entry)}"))
         {
             yield return webRequest.SendWebRequest();
 
