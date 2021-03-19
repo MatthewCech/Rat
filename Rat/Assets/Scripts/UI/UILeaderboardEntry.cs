@@ -16,7 +16,10 @@ namespace Rat
 
         public void SetValue(string label, string value, int number, Color foreground, Color background)
         {
-            entryLabel.text = "rat";
+            if(entryLabel)
+            {
+                entryLabel.text = "rat";
+            }
             entryValue.text = value;
 
             // Set tag values

@@ -53,10 +53,14 @@ namespace Rat
             Debug.Log("Verifying leaderboard sorting");
             yield return StartCoroutine(LeaderboardUtil.SortLeaderboard(leaderboard));
 
+            // Turn off loading text
+            yield return null;
+            loadingText.gameObject.SetActive(false);
+
             // Construt loading items with delay
             yield return null;
             Debug.Log("Adding entries");
-            const float delay = 0.025f;
+            const float delay = 0.01f;
             for (int i = 0; i < leaderboard.entries.Count; ++i)
             {
                 LeaderboardUtil.ScoreEntry score = leaderboard.entries[i];
@@ -69,10 +73,8 @@ namespace Rat
                 yield return new WaitForSeconds(delay);
             }
 
-            // Turn off loading text
             yield return null;
             Debug.Log("Done");
-            loadingText.gameObject.SetActive(false);
         }
     }
 }

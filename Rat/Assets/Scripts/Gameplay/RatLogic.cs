@@ -19,21 +19,29 @@ namespace Rat
         [SerializeField] private GameObject rat;
         [SerializeField] private float ratExitSpeed = 1;
         [SerializeField] private string exitScene = "";
-        [SerializeField] private List<GameObject> showWhenDone;
 
         private bool loadingScene = false;
-        private void Awake()
+        private void OnEnable()
         {
             Events.OnRatButton += IncrementScore;
             Events.OnCountdownEnd += OnEnd;
-            Events.OnCountdownReset += () => { countdownCurrent = countdownDefault; };
+            Events.OnCountdownReset += CountdownReset;
             Events.OnCountdownStart += BeginCountdown;
             Events.OnLeaderboardEntryRequest += ScoreCreated;
+        }
 
-            foreach (GameObject go in showWhenDone)
-            {
-                go.SetActive(false);
-            }
+        private void OnDisable()
+        {
+            Events.OnLeaderboardEntryRequest -= ScoreCreated;
+            Events.OnCountdownStart -= BeginCountdown;
+            Events.OnCountdownReset -= CountdownReset;
+            Events.OnCountdownEnd -= OnEnd;
+            Events.OnRatButton -= IncrementScore;
+        }
+
+        private void CountdownReset()
+        {
+            countdownCurrent = countdownDefault;
         }
 
         private void ScoreCreated()
@@ -110,14 +118,10 @@ namespace Rat
 
         void OnEnd()
         {
-            foreach(GameObject go in showWhenDone)
-            {
-                go.SetActive(true);
-            }
-
             StartCoroutine(RemoveRatLeft());
         }
 
+        // Make the rat fly off the screen to the left. If the screen is super wide, probably hide the rat.
         private IEnumerator RemoveRatLeft()
         {
             float timeLeft = 6;

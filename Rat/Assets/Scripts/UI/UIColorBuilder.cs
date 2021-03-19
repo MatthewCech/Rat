@@ -31,6 +31,7 @@ namespace Rat
 
             new Color(255/255f, 255/255f, 255/255f, 1f),
             new Color(195/255f, 195/255f, 195/255f, 1f),
+            new Color(185/255f, 122/255f, 87/255f, 1f),
             new Color(255/255f, 174/255f, 201/255f, 1f),
             new Color(255/255f, 201/255f, 14/255f, 1f),
             new Color(239/255f, 228/255f, 176/255f, 1f),

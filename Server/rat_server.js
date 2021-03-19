@@ -10,6 +10,7 @@ const api_port = 8080;
 const api_separator = "/";                  
 const api_forward = api_separator + "api/"; 
 const api_root = api_forward + "v1/";       
+const api_rat = api_root + "rat/";
 
 // Confiure coors
 app.use(cors());
@@ -60,7 +61,6 @@ let highscores = [
 	}
 ];
 
-const api_rat = api_root + "rat/";
 app.all(api_rat, (req, res) => {
 	res.send(formatSuccess("Rat leaderboard prototype reached!"))
 });

@@ -6,23 +6,28 @@ namespace Rat
 {
     public class UILerpOnFinish : RatMonoBehaviour
     {
-        [SerializeField] private Vector3 targetPos;
-        [SerializeField] private Vector3 targetScale = Vector3.one;
-        [SerializeField] private float duration = 1;
+        [SerializeField] private Vector3 scale = Vector3.one;
+        [SerializeField] private float duration = .5f;
+        [SerializeField] private bool lerpsToScaleInsteadOfFrom = true;
+        [SerializeField] private AnimationCurve curve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
-        private Vector3 startPos;
         private Vector3 startScale;
         private bool lerpEnabled = false;
         private float timeSoFar;
 
         private void Awake()
         {
+            startScale = this.transform.localScale;
+
+            if(!lerpsToScaleInsteadOfFrom)
+            {
+                this.transform.localScale = scale;
+            }
+
             Events.OnCountdownEnd += () =>
             {
                 if(this != null && this.gameObject != null)
                 {
-                    startPos = this.transform.localPosition;
-                    startScale = this.transform.localScale;
                     lerpEnabled = true;
                 }
             };
@@ -38,9 +43,17 @@ namespace Rat
                     timeSoFar = duration;
                 }
 
-                float t = timeSoFar / duration;
-                this.transform.localPosition = Vector3.Lerp(startPos, targetPos, t);
-                this.transform.localScale = Vector3.Lerp(startScale, targetScale, t);
+                float rawT = timeSoFar / duration;
+                float t = curve.Evaluate(rawT);
+
+                if (lerpsToScaleInsteadOfFrom)
+                {
+                    this.transform.localScale = Vector3.Lerp(startScale, scale, t);
+                }
+                else
+                {
+                    this.transform.localScale = Vector3.Lerp(scale, startScale, t);
+                }
             }
         }
     }

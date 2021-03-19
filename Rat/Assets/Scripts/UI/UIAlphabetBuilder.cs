@@ -33,7 +33,6 @@ namespace Rat
 
         private void SetLetter(char letter)
         {
-            Debug.Log($"setting {target} to {letter}");
             if(target == TargetValue.first)
             {
                 if(Globals.savedTag == null)

@@ -37,7 +37,7 @@ public static class LeaderboardUtil
         return score;
     }
 
-    public const string endpoint = "https://derg.app/api/v1/rat";
+    public const string endpoint = "https://rw0.pw/api/v1/rat";
 
     public static IEnumerator SendScore(ScoreEntry entry, System.Action<string> onComplete, System.Action<string> onError)
     {

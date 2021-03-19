@@ -25,7 +25,7 @@ namespace Rat
         public Action<float> OnCountdownStartup;
 
         // Score
-        public Action<long> OnScoreChange;
+        public Action<int> OnScoreChange;
         public Action OnScoreReset;
         public Action OnLeaderboardEntryRequest;
 
