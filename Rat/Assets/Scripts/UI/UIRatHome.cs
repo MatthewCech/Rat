@@ -14,6 +14,7 @@ namespace Rat
         public UILeaderboardEntry entryTemplate;
         public UILoadingText loadingText;
         public TMPro.TextMeshProUGUI errorText;
+        public TMPro.TextMeshProUGUI bestText;
 
         private void Start()
         {
@@ -21,6 +22,8 @@ namespace Rat
 
             errorText.gameObject.SetActive(false);
             entryTemplate.gameObject.SetActive(false);
+            bestText.text = $"{bestText.text} {Globals.bestSoFar}";
+
             StartCoroutine(LoadLeaderboard());
         }
 
@@ -30,23 +33,40 @@ namespace Rat
             yield return null;
             yield return LeaderboardUtil.GetRawLeaderboard(
                 (res) => {
-                    Debug.Log("Got a result");
+                    //Debug.Log("Got a result");
                     StartCoroutine(ParseLeaderboard(res));
                 },
                 (err) => {
-                    Debug.LogError(err);
-                    loadingText.gameObject.SetActive(false);
-                    errorText.gameObject.SetActive(true);
-                    errorText.text = err;
+                    LogErrorShowFail(err);
                 });
+        }
+
+        private void LogErrorShowFail(string message = null)
+        {
+            if (message != null)
+            {
+                Debug.LogError(message);
+            }
+
+            loadingText.gameObject.SetActive(false);
+            errorText.gameObject.SetActive(true);
         }
 
         private IEnumerator ParseLeaderboard(string raw)
         {
             // Try to parse json
             yield return null;
-            Debug.Log("Trying to parse leaderboard");
-            LeaderboardUtil.Leaderboard leaderboard = JsonUtility.FromJson<LeaderboardUtil.Leaderboard>(raw);
+            LeaderboardUtil.Leaderboard leaderboard;
+            try
+            {
+                //Debug.Log("Trying to parse leaderboard");
+                leaderboard = JsonUtility.FromJson<LeaderboardUtil.Leaderboard>(raw);
+            }
+            catch(System.Exception e)
+            {
+                LogErrorShowFail("Error parsing leaderboard response... is the leaderboard down?");
+                yield break;
+            }
 
             // Perform sorting.
             yield return null;

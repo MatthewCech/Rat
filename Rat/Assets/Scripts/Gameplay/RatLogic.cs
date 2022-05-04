@@ -58,9 +58,14 @@ namespace Rat
 
         private IEnumerator CreateScore(string tag, Color fg, Color bg)
         {
+            if (score > Globals.bestSoFar)
+            {
+                Globals.bestSoFar = score;
+            }
+
             yield return LeaderboardUtil.SendScore(LeaderboardUtil.ConstructScore(tag, fg, bg, score),
                 (res)=> {
-                    Debug.Log($"Got back confirmation: {res}");
+                    //Debug.Log($"Got back confirmation: {res}");
                     Done();
                 },
                 (err)=>
@@ -103,6 +108,7 @@ namespace Rat
                 if (countdownCurrent < 0)
                 {
                     countdownCurrent = 0;
+                    isCounting = false;
                     Events.OnCountdownEnd?.Invoke();
                 }
 
@@ -125,10 +131,12 @@ namespace Rat
         private IEnumerator RemoveRatLeft()
         {
             float timeLeft = 6;
-            while(timeLeft > 0)
+            float offset = 0;
+            while (timeLeft > 0)
             {
                 Vector3 pos = rat.transform.position;
-                rat.transform.position = new Vector3(pos.x - ratExitSpeed * Time.deltaTime, pos.y, pos.z);
+                offset += ratExitSpeed;
+                rat.transform.position = new Vector3(pos.x - offset * Time.deltaTime, pos.y, pos.z);
                 timeLeft -= Time.deltaTime;
                 yield return new WaitForEndOfFrame();
             }

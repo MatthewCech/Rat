@@ -31,6 +31,7 @@ namespace Rat
 
         // Audio
         public Action<AudioLabel, AudioType> OnPlaySound;
+        public Action OnChangeMuteStatus;
 
           //////////////////////
          // Event management //

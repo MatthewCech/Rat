@@ -15,6 +15,8 @@ namespace Rat
         private bool lerpEnabled = false;
         private float timeSoFar;
 
+        public float Duration { get { return duration; } }
+
         private void Awake()
         {
             startScale = this.transform.localScale;

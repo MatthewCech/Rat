@@ -34,10 +34,6 @@ namespace Rat
     // Audio playback singleton
     public class GameAudio : RatMonoBehaviour
     {
-        // Constants
-        public const float volumeMusic = 0.7f;
-        public const float volumeSFX = 1f;
-
         // Public variables
         public List<AudioPair> Sounds;
 
@@ -48,7 +44,7 @@ namespace Rat
 
         // Singleton stuff
         public static GameAudio Instance { get; private set; }
-        void Awake()
+        private void Awake()
         {
             if (Instance == null)
             {
@@ -63,13 +59,16 @@ namespace Rat
         }
 
         // Initializes the audio system
-        void Init()
+        private void Init()
         {
             sourceMusic = gameObject.AddComponent<AudioSource>();
             sourceMusic.loop = true;
-
+            
             sourceSFX = gameObject.AddComponent<AudioSource>();
 
+            UpdateBasedOnMute();
+
+            Events.OnChangeMuteStatus += UpdateBasedOnMute;
             Events.OnPlaySound += (label, type) =>
             {
                 switch(type)
@@ -84,7 +83,7 @@ namespace Rat
                         {
                             if (label != currentLabel)
                             {
-                                PlayOn(label, sourceMusic, volumeMusic);
+                                PlayOn(label, sourceMusic, GameValues.volumeMusicDefault);
                                 currentLabel = label;
                             }
                         }
@@ -97,15 +96,24 @@ namespace Rat
                         }
                         else
                         {
-                            PlayOn(label, sourceSFX, volumeSFX);
+                            PlayOn(label, sourceSFX, GameValues.volumeSFXDefault);
                         }
                         break;
                 }
             };
         }
 
+        // Will update mute status appropriately
+        private void UpdateBasedOnMute()
+        {
+            bool muted = Globals.IsMuted;
+
+            sourceSFX.mute = muted;
+            sourceMusic.mute = muted;
+        }
+
         // Randomly plays something from the specified label on the specified managed source.
-        void PlayOn(AudioLabel label, AudioSource source, float volume)
+        private void PlayOn(AudioLabel label, AudioSource source, float volume)
         {
             List<AudioPair> clips = new List<AudioPair>();
 

@@ -73,7 +73,7 @@ public static class LeaderboardUtil
             assembled += postChar;
         }
 
-        Debug.Log(assembled);
+        //Debug.Log(assembled);
         assembled = UnityWebRequest.EscapeURL(assembled);
         return assembled;
     }
