@@ -8,6 +8,7 @@ const cors = require("cors");
 
 // General config
 const api_port = 38080;
+const highscores_max = 50;
 const version = 1;
 const serverName = "rat_1";
 
@@ -88,8 +89,18 @@ let highscores = [
 	}
 ];
 
+// Performs any maintinence needed on the existing highscores
+function upkeepHighscores()
+{
+	// Sorts highest to lowest
+	highscores.sort((a, b) => {
+		return b.score - a.score;
+	});
+}
+
 // Confiure coors
 app.use(cors());
+app.use(express.json());
 
 // General responses
 app.all(api_separator, (req, res) => {
@@ -99,6 +110,28 @@ app.all(api_separator, (req, res) => {
 // Handle root. Respond with version.
 app.all(api_root, (req, res) => {
 	res.send(formatSuccess(`You've reached version ${version}`));
+});
+
+// format of request
+// (...) /populate?data=rat-237.28.36-181.230.29-200,rat-237.28.36-181.230.29+290, (...)
+// Keep in mind that in a URL, a comma is encoded as %2C
+app.all(api_root + "populate", (req, res) => {
+	let content = req.param("data")
+	let entries = content.split(",") // Collect down to multiple rat-237.28.36-181.230.29-200
+	
+	for(let i = 0; i < entries.length; i++) {
+		let splitEntry = entries[i].split('-');
+		let obj = { tag:splitEntry[0], fg:splitEntry[1], bg:splitEntry[2], score:parseInt(splitEntry[3]) };
+		highscores.push(obj);
+	} 
+
+	upkeepHighscores();
+	res.send(highscores);
+});
+
+app.all(api_root + "upkeep", (req, res) => {
+	upkeepHighscores();
+	res.send(formatSuccess("Done"));
 });
 
 // Sample entry for [Tag: ab, Fg: 127.128.129, Bg: 15.16.17, Score: 123]
@@ -188,6 +221,7 @@ app.all(api_root + "add", (req, res) => {
 				let toAdd = {tag:query_tag, fg:query_fg, bg:query_bg, score:query_score};
 				highscores.push(toAdd);
 				res.send(formatSuccess(`Added item with data ${JSON.stringify(toAdd)}`));
+				upkeepHighscores();
 			}
 		}
 	} catch {
@@ -216,10 +250,38 @@ app.all(api_root + "remove", (req, res) => {
 
 // Returns all highscore data
 app.all(api_root + "dump", (req, res) => {
-	res.send({entries:highscores});
+
+	let isAll = req.param("all");
+	if(isAll == "true") {
+		res.send({entries:highscores});
+		return;
+	}
+
+	// Collect until the length or our max. Note that we still have internally the whole list.
+	let toSend = [];
+	for (let i = 0; i < highscores.length && i < highscores_max; i++) {
+		toSend.push(highscores[i]);
+	}
+
+	res.send({entries:toSend});
+	return;
 });
 
+// Formats and writes out in a formatted list
+app.all(api_root + "write", (req, res) => {
 
+	let toSend = [];
+	for (let i = 0; i < highscores.length; i++) {
+		let cur = highscores[i];
+
+		if(i != 0)
+			toSend += ",";
+
+		toSend += "" + cur.tag + "-" + cur.fg + "-" + cur.bg + "-" + cur.score;
+	}
+
+	res.send(toSend);
+});
 
   /////////////////////////////
  // Actually run the server //
@@ -227,5 +289,6 @@ app.all(api_root + "dump", (req, res) => {
 
 // Bind to port and begin listening
 app.listen(api_port, () => {
+	upkeepHighscores();
 	GlobalLog.log(`Rat active, listening on port ${api_port}`)
 });
