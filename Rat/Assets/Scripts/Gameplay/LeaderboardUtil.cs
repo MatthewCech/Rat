@@ -37,7 +37,7 @@ public static class LeaderboardUtil
         return score;
     }
 
-    public const string endpoint = "https://rw0.pw/rat/v1";
+    public const string endpoint = "https://api.loam.net/rat/v1";
 
     // You found it, congrats! I'm not going to bother with much past this, I've
     // made it a barrier to entry proportionally harder than just plaintext in line
